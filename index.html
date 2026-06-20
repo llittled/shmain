@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shanghai 2026 — ทริปคู่รัก 8 วัน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root{
+    /* Palette — soft travel-app mood: cream, forest green, lime pop, warm coral */
+    --porcelain:#e9e6d9;
+    --porcelain-soft:#f1efe4;
+    --card:#fcfbf6;
+    --ink:#1f3a2b;
+    --ink-soft:#2c4a38;
+    --jade:#3a6b4e;
+    --jade-deep:#234a35;
+    --lime:#c6d94a;
+    --lime-deep:#aac02e;
+    --plum:#8a5fb0;
+    --bronze:#8f9c56;
+    --bronze-soft:#b2bd76;
+    --lacquer:#dd7048;
+    --text:#26302a;
+    --muted:#6d7568;
+    --hairline:rgba(47,74,56,.16);
+    --shadow:0 1px 2px rgba(31,58,43,.04), 0 22px 50px -32px rgba(31,58,43,.34);
+    --radius:20px;
+    --radius-sm:14px;
+    --font-display:'Kanit','Noto Sans SC', system-ui, sans-serif;
+    --font-body:'Kanit','Noto Sans SC', system-ui, -apple-system, sans-serif;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--porcelain);
+    color:var(--text);
+    font-family:var(--font-body);
+    font-weight:400;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  a{color:inherit;}
+  .zh{font-family:'Noto Sans SC',sans-serif;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    background:
+      radial-gradient(120% 80% at 82% -10%, rgba(198,217,74,.22), transparent 55%),
+      linear-gradient(160deg,#1c3829 0%, #244a35 48%, #18301f 100%);
+    color:var(--porcelain);
+    overflow:hidden;
+    isolation:isolate;
+  }
+  .hero__deco{position:absolute;inset:0;z-index:-1;opacity:.5;}
+  .hero__rain{position:absolute;inset:0;z-index:-1;overflow:hidden;}
+  .hero__rain span{
+    position:absolute;top:-20%;width:1px;height:90px;
+    background:linear-gradient(transparent, rgba(198,217,74,.45));
+    animation:rain linear infinite;
+  }
+  @keyframes rain{to{transform:translateY(140vh);}}
+  .hero__inner{
+    position:relative;max-width:var(--maxw);margin:0 auto;
+    padding:74px 22px 64px;
+    display:grid;grid-template-columns:1fr auto;gap:32px;align-items:end;
+  }
+  .hero__eyebrow{
+    font-size:.78rem;letter-spacing:.42em;text-transform:uppercase;
+    color:var(--lime);margin:0 0 18px;font-weight:600;
+  }
+  .hero__title{
+    font-family:var(--font-display);
+    font-size:clamp(3.1rem,9vw,6.4rem);
+    line-height:.94;margin:0;color:var(--porcelain);
+    font-weight:600;letter-spacing:.01em;
+  }
+  .hero__title em{color:var(--lime);font-style:normal;}
+  .hero__sub{
+    margin:20px 0 0;max-width:30ch;font-size:1.05rem;color:#d8d2c2;font-weight:300;
+  }
+  .hero__meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    border:1px solid rgba(198,217,74,.4);
+    border-radius:999px;padding:8px 15px;font-size:.86rem;color:#eef0df;
+    background:rgba(255,255,255,.05);
+  }
+  .hero__vertical{
+    writing-mode:vertical-rl;font-family:'Noto Sans SC',serif;
+    font-size:clamp(3rem,11vw,7.5rem);font-weight:700;line-height:1;
+    color:transparent;-webkit-text-stroke:1.4px rgba(198,217,74,.5);
+    letter-spacing:.08em;align-self:center;user-select:none;
+  }
+  @media(max-width:720px){
+    .hero__inner{grid-template-columns:1fr;}
+    .hero__vertical{display:none;}
+  }
+
+  /* ---------- NAV ---------- */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(239,234,221,.92);
+    backdrop-filter:saturate(140%) blur(8px);
+    border-bottom:1px solid var(--hairline);
+  }
+  .nav__inner{
+    max-width:var(--maxw);margin:0 auto;padding:0 22px;
+    display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;
+  }
+  .nav__inner::-webkit-scrollbar{display:none;}
+  .nav a{
+    flex:0 0 auto;text-decoration:none;color:var(--ink-soft);
+    font-size:.9rem;font-weight:600;padding:9px 16px;margin:9px 2px;white-space:nowrap;
+    border-radius:999px;transition:.18s;
+  }
+  .nav a:hover{color:var(--jade-deep);background:var(--lime);}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:62px 0;}
+  .eyebrow{
+    font-size:.74rem;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--bronze);font-weight:700;margin:0 0 10px;
+  }
+  .h2{
+    font-family:var(--font-display);font-weight:600;
+    font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.1;
+    margin:0 0 6px;color:var(--ink);
+  }
+  .lede{color:var(--muted);max-width:60ch;margin:8px 0 36px;}
+
+  /* ---------- AT A GLANCE ---------- */
+  .glance{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+  }
+  .glance__card{
+    background:var(--card);border:1px solid var(--hairline);border-radius:var(--radius);
+    padding:22px 20px;box-shadow:var(--shadow);
+  }
+  .glance__label{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--bronze);font-weight:700;}
+  .glance__val{font-size:1.12rem;margin-top:8px;font-weight:600;color:var(--ink);}
+  .glance__note{font-size:.85rem;color:var(--muted);margin-top:3px;}
+  @media(max-width:760px){.glance{grid-template-columns:1fr 1fr;}}
+
+  /* ---------- TRANSPORT ---------- */
+  .opts{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  .opt{
+    background:var(--card);border:1px solid var(--hairline);border-radius:var(--radius);
+    padding:22px;box-shadow:var(--shadow);position:relative;
+  }
+  .opt--pick{border-color:var(--lime-deep);box-shadow:0 0 0 2px var(--lime) inset, var(--shadow);}
+  .opt__tag{
+    position:absolute;top:-11px;left:18px;background:var(--lime);color:var(--jade-deep);
+    font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;
+    padding:4px 10px;border-radius:999px;
+  }
+  .opt__name{font-weight:700;font-size:1.1rem;color:var(--ink);}
+  .opt__route{font-size:.9rem;color:var(--muted);margin:8px 0;}
+  .opt__stats{display:flex;gap:18px;font-size:.92rem;margin-top:10px;flex-wrap:wrap;}
+  .opt__stats b{color:var(--jade-deep);}
+  @media(max-width:680px){.opts{grid-template-columns:1fr;}}
+
+  table.routes{width:100%;border-collapse:separate;border-spacing:0;margin-top:26px;font-size:.92rem;background:var(--card);box-shadow:var(--shadow);border-radius:var(--radius);overflow:hidden;}
+  table.routes th,table.routes td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--hairline);}
+  table.routes th{background:var(--ink);color:var(--porcelain);font-weight:600;font-size:.82rem;letter-spacing:.04em;}
+  table.routes tr:last-child td{border-bottom:none;}
+  .wrap-scroll{overflow-x:auto;}
+
+  .callout{
+    margin-top:26px;background:rgba(47,107,91,.08);border:1px solid rgba(47,107,91,.3);
+    border-left:4px solid var(--jade);border-radius:var(--radius);padding:16px 18px;font-size:.95rem;
+  }
+  .callout b{color:var(--jade-deep);}
+
+  /* ---------- ITINERARY ---------- */
+  .day{
+    background:var(--card);border:1px solid var(--hairline);border-radius:var(--radius);
+    margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden;
+  }
+  .day>summary{
+    list-style:none;cursor:pointer;display:flex;align-items:center;gap:18px;
+    padding:20px 22px;user-select:none;
+  }
+  .day>summary::-webkit-details-marker{display:none;}
+  .day__num{
+    flex:0 0 auto;width:48px;height:48px;border-radius:50%;
+    background:var(--lime);color:var(--jade-deep);
+    display:grid;place-items:center;font-family:var(--font-display);font-size:1.5rem;
+  }
+  .day__head{flex:1;min-width:0;}
+  .day__date{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--bronze);font-weight:700;}
+  .day__title{font-size:1.18rem;font-weight:600;color:var(--ink);line-height:1.2;}
+  .day__chev{flex:0 0 auto;color:var(--bronze);transition:transform .25s;font-size:1.1rem;}
+  .day[open] .day__chev{transform:rotate(90deg);}
+  .day__body{padding:4px 22px 26px 22px;}
+  .day__intro{color:var(--muted);font-size:.94rem;margin:0 0 20px;padding-left:8px;border-left:3px solid var(--bronze-soft);padding-top:2px;padding-bottom:2px;}
+
+  /* metro-line timeline */
+  .line{position:relative;margin:0;padding:0 0 0 4px;list-style:none;}
+  .line::before{
+    content:"";position:absolute;left:62px;top:10px;bottom:10px;width:2px;
+    background:linear-gradient(var(--bronze-soft),var(--bronze));
+  }
+  .stop{display:grid;grid-template-columns:54px 1fr;gap:18px;align-items:start;padding:9px 0;position:relative;}
+  .stop__time{font-size:.84rem;font-weight:600;color:var(--jade-deep);text-align:right;padding-top:2px;font-variant-numeric:tabular-nums;}
+  .stop__dot{position:absolute;left:55px;top:8px;width:16px;height:16px;border-radius:50%;background:var(--card);border:3px solid var(--jade);z-index:1;}
+  .stop--eat .stop__dot{border-color:var(--lacquer);}
+  .stop--star .stop__dot{border-color:var(--bronze);background:var(--bronze);}
+  .stop--dao .stop__dot{border-color:var(--plum);background:var(--plum);}
+  .stop__body{padding-left:22px;}
+  .stop__name{font-weight:600;color:var(--ink);}
+  .stop__name .en{color:var(--muted);font-weight:400;font-size:.92em;}
+  .stop__note{font-size:.9rem;color:var(--muted);margin-top:2px;}
+  .maplink{display:inline-flex;align-items:center;gap:4px;font-size:.8rem;color:var(--jade);text-decoration:none;margin-top:4px;border-bottom:1px dotted var(--jade);}
+  .maplink:hover{color:var(--lacquer);border-bottom-color:var(--lacquer);}
+  .pill{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle;}
+  .pill--free{background:rgba(47,107,91,.14);color:var(--jade-deep);}
+  .pill--cost{background:rgba(176,134,63,.16);color:#8a661f;}
+
+  /* ---------- GUIDE GRIDS ---------- */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:860px){.grid{grid-template-columns:1fr 1fr;}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr;}}
+  .gcard{
+    background:var(--card);border:1px solid var(--hairline);border-radius:var(--radius);
+    padding:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;
+  }
+  .gcard__type{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--bronze);font-weight:700;}
+  .gcard__name{font-weight:700;color:var(--ink);font-size:1.04rem;line-height:1.25;}
+  .gcard__name .zh{font-weight:500;color:var(--muted);font-size:.9em;}
+  .gcard__desc{font-size:.9rem;color:var(--muted);flex:1;}
+  .gcard__foot{font-size:.84rem;color:var(--jade-deep);font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+  .gcard__star{color:var(--bronze);}
+  .open-mon{color:var(--jade);font-weight:700;}
+  .closed{color:var(--lacquer);font-weight:700;}
+
+  /* ---------- BUDGET ---------- */
+  table.budget{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);box-shadow:var(--shadow);font-size:.95rem;border-radius:var(--radius);overflow:hidden;}
+  table.budget th,table.budget td{padding:14px 16px;border-bottom:1px solid var(--hairline);text-align:left;}
+  table.budget th{background:var(--ink);color:var(--porcelain);font-weight:600;}
+  table.budget td:last-child,table.budget th:last-child{text-align:right;}
+  table.budget tr.total td{font-weight:700;color:var(--ink);font-size:1.05rem;border-bottom:none;background:rgba(198,217,74,.22);}
+  table.budget td .nt{display:block;font-size:.82rem;color:var(--muted);font-weight:400;margin-top:2px;}
+
+  /* ---------- TIPS ---------- */
+  .tips{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  @media(max-width:680px){.tips{grid-template-columns:1fr;}}
+  .tip{background:var(--card);border:1px solid var(--hairline);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);}
+  .tip__h{font-weight:700;color:var(--ink);margin-bottom:5px;}
+  .tip__b{font-size:.92rem;color:var(--muted);}
+
+  /* ---------- FOOTER ---------- */
+  footer{background:var(--ink);color:#d8d2c2;text-align:center;padding:48px 22px;}
+  footer .fz{font-family:var(--font-display);font-size:1.8rem;color:var(--lime);}
+  footer .fs{font-size:.9rem;margin-top:8px;color:#9a9384;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;scroll-behavior:auto!important;}
+  }
+
+  /* ---------- FLAT ICONS (Lucide) ---------- */
+  .ic{width:1.05em;height:1.05em;vertical-align:-0.16em;stroke-width:2;flex:0 0 auto;}
+  .ic-star{fill:currentColor;stroke-width:1.6;}
+  .day__title .ic,.gcard__type .ic{margin-right:.12em;}
+  .chip .ic{margin-right:.1em;}
+  .maplink .ic{width:.95em;height:.95em;vertical-align:-0.12em;}
+
+  /* ---------- TRIP MAP ---------- */
+  .maptabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px;margin-top:4px;}
+  .maptabs::-webkit-scrollbar{display:none;}
+  .maptab{flex:0 0 auto;border:1px solid var(--hairline);cursor:pointer;font-family:inherit;font-weight:600;font-size:.88rem;padding:9px 18px;border-radius:999px;background:var(--card);color:var(--ink-soft);transition:.15s;}
+  .maptab:hover{background:var(--lime);color:var(--jade-deep);}
+  .maptab.active{background:var(--ink);color:var(--porcelain);border-color:var(--ink);}
+  .maplayout{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+  @media(max-width:820px){.maplayout{grid-template-columns:1fr;}}
+  #leafmap{height:560px;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--hairline);z-index:0;background:#0e1714;}
+  @media(max-width:820px){#leafmap{height:380px;}}
+  .mappanel{background:#16241d;color:#e9efe7;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;max-height:560px;overflow-y:auto;}
+  @media(max-width:820px){.mappanel{max-height:none;}}
+  .mappanel .pday{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--lime);font-weight:700;}
+  .mappanel h3{font-family:var(--font-display);font-weight:600;font-size:1.35rem;margin:.25em 0 0;color:#fff;line-height:1.15;}
+  .mappanel .pintro{color:#a6b4a4;font-size:.9rem;margin:8px 0 16px;}
+  .mproute{display:inline-flex;align-items:center;gap:8px;background:var(--lime);color:var(--jade-deep);font-weight:700;border:none;border-radius:999px;padding:10px 18px;cursor:pointer;text-decoration:none;font-size:.9rem;margin-bottom:8px;}
+  .mstop{display:grid;grid-template-columns:30px 1fr;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,.09);cursor:pointer;transition:.12s;}
+  .mstop:hover{background:rgba(255,255,255,.05);border-radius:10px;}
+  .mstop__n{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,.85);}
+  .mstop__n.nogeo{background:transparent !important;border-style:dashed;color:#7e8c7d;}
+  .mstop__t{font-size:.74rem;color:#9fb0a0;font-variant-numeric:tabular-nums;}
+  .mstop__name{font-weight:600;color:#fff;font-size:.95rem;}
+  .mstop__note{font-size:.82rem;color:#9fb0a0;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .mk{width:26px;height:26px;border-radius:50%;border:2px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.76rem;box-shadow:0 2px 7px rgba(0,0,0,.5);}
+  .leaflet-popup-content{font-family:var(--font-body);font-size:.86rem;}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero__rain" id="rain" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <div>
+      <p class="hero__eyebrow">A Couple's Journey · 8 Days</p>
+      <h1 class="hero__title">Shanghai<br><em>2026</em></h1>
+      <p class="hero__sub">ทริปคู่รักสไตล์ชิลล์ ๆ เน้นร้านอาหาร คาเฟ่ และพิพิธภัณฑ์ — ไม่มีดิสนีย์แลนด์</p>
+      <div class="hero__meta">
+        <span class="chip"><i data-lucide="calendar" class="ic"></i> 24 มิ.ย. – 1 ก.ค. 2026</span>
+        <span class="chip"><i data-lucide="bed-double" class="ic"></i> Country Inn · Railway Station</span>
+        <span class="chip"><i data-lucide="cloud-rain" class="ic"></i> หน้าฝนพลัม · 25–32°C</span>
+      </div>
+    </div>
+    <div class="hero__vertical zh" aria-hidden="true">上海</div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav" aria-label="หัวข้อหลัก">
+  <div class="nav__inner">
+    <a href="#itinerary">Itinerary</a>
+    <a href="#map">Map</a>
+    <a href="#food">Food &amp; Cafés</a>
+    <a href="#museums">Museums</a>
+    <a href="#temples">Temples</a>
+    <a href="#budget">Budget</a>
+  </div>
+</nav>
+
+
+<!-- ITINERARY -->
+<section id="itinerary" class="wrap">
+  <p class="eyebrow">Day by Day</p>
+  <h2 class="h2">8-Day Itinerary</h2>
+  <p class="lede"><span style="color:var(--jade);font-weight:600;">● จุดเที่ยว</span> &nbsp; <span style="color:var(--lacquer);font-weight:600;">● ร้านอาหาร</span> &nbsp; <span style="color:var(--bronze);font-weight:600;">● Moodang's pick</span> &nbsp; <span style="color:var(--plum);font-weight:600;">● Dao's pick</span></p>
+
+  <!-- DAY 1 -->
+  <details class="day" open>
+    <summary>
+      <span class="day__num">1</span>
+      <span class="day__head"><span class="day__date">พุธ 24 มิ.ย.</span><span class="day__title"><i data-lucide="plane-landing" class="ic"></i> Arrive Shanghai + The Bund</span></span>
+      <span class="day__chev">›</span>
+    </summary>
+    <div class="day__body">
+      <p class="day__intro">วันเดินทาง — เช็คอิน พักผ่อน แล้วออกไปชมเดอะบันด์ช่วงพระอาทิตย์ตก จบด้วยมื้อค่ำยูนนานสุดโรแมนติก</p>
+      <ul class="line">
+        <li class="stop"><div class="stop__time">07:35</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Arrive at PVG Airport <span class="en zh">浦东机场</span></div><div class="stop__note">ตม. + รับกระเป๋า ~45 นาที</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.808118,31.151526&name=PVG Airport"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">08:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Airport → Hotel</div><div class="stop__note">เลือกแล้ว: Airport Bus สาย 5 ตรงถึงสถานีรถไฟเซี้ยงไฮ้ ~60–80 นาที <span class="pill pill--cost">¥22–30 (≈฿110–140)</span> ไม่ต้องต่อรถ กระเป๋าสบาย</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.459106,31.241979&name=Country Inn Shanghai Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">10:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Hotel check-in</div><div class="stop__note">585 Hengfeng Rd · ฮับ Metro สาย 1/3/4 · ดรอปกระเป๋า พักหน่อย</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.459106,31.241979&name=Country Inn Shanghai Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">11:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Lunch: Yang's Fried Dumplings <span class="en zh">小杨生煎</span></div><div class="stop__note">เสฉวนเป่า (shengjianbao) ก้นกรอบชื่อดัง ใกล้สถานี <span class="pill pill--cost">¥20–40 (≈฿95–190)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.458000,31.240000&name=Yang's Fried Dumplings"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--dao"><div class="stop__time">12:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Tiantong Rd Station <span class="en zh">天潼路站</span></div><div class="stop__note">จุดตัดเปลี่ยนสาย <span style="display:inline-block;background:#8a5fb0;color:#fff;border-radius:999px;padding:1px 9px;font-size:.72rem;font-weight:700;vertical-align:middle;">Line 10</span> <span style="display:inline-block;background:#00795c;color:#fff;border-radius:999px;padding:1px 9px;font-size:.72rem;font-weight:700;vertical-align:middle;">Line 12</span> · ช้อปปิ้งย่าน North Bund แล้วเดินต่อไปริมน้ำเดอะบันด์ได้</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.486000,31.249700&name=Tiantong Road Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">14:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Rest / nap</div><div class="stop__note">วันเดินทาง เอาสบาย ๆ ก่อน · พักที่โรงแรม</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.459106,31.241979&name=Country Inn Shanghai Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat stop--dao"><div class="stop__time">15:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name"><i data-lucide="coffee" class="ic"></i> Tea: CHAGEE <span class="en zh">霸王茶姬</span> / Heytea <span class="en zh">喜茶</span></div><div class="stop__note">แวะระหว่างทางไปเดอะบันด์ แถว People's Square <span class="pill pill--cost">¥20–35 (≈฿95–170)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.473000,31.235000&name=CHAGEE"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--dao"><div class="stop__time">16:45</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">The Rockbund <span class="en zh">外滩源</span></div><div class="stop__note">ย่านประวัติศาสตร์ปลายเหนือเดอะบันด์ — ตึกเก่าบูรณะสวย Rockbund Art Museum คาเฟ่ ร้านอาหาร ดีไซน์ช็อป เดินถ่ายรูปเพลิน</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.490500,31.238900&name=Rockbund"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--star"><div class="stop__time">17:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">The Bund <span class="en zh">外滩</span></div><div class="stop__note">เดินเล่นริมน้ำ 1.5 กม. สถาปัตยกรรมโคโลเนียลคู่กับสกายไลน์ผู่ตง · สวยสุดตอน golden hour <i data-lucide="sunrise" class="ic"></i></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.492127,31.233516&name=The Bund"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">19:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Dinner: Lost Heaven <span class="en zh">花马天堂</span></div><div class="stop__note">อาหารยูนนานฟิวชั่น ตกแต่งสวยมาก โรแมนติก เดินจากเดอะบันด์ ~15 นาที <span class="pill pill--cost">¥200–350 (≈฿960–1,700)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.485000,31.235000&name=Lost Heaven"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">21:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Nightcap (optional)</div><div class="stop__note">Flair Rooftop (Ritz-Carlton Pudong ชั้น 58) หรือ Bar Rouge ริมเดอะบันด์</div></div></li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- DAY 2 -->
+  <details class="day">
+    <summary>
+      <span class="day__num">2</span>
+      <span class="day__head"><span class="day__date">พฤ 25 มิ.ย.</span><span class="day__title"><i data-lucide="train-front" class="ic"></i> Day Trip · Hangzhou <span class="zh" style="font-weight:500;">杭州</span></span></span>
+      <span class="day__chev">›</span>
+    </summary>
+    <div class="day__body">
+      <p class="day__intro">นั่งรถไฟความเร็วสูงไปหางโจว ~1 ชม. เมืองที่คนจีนว่าสวยที่สุด — ทะเลสาบซีหู วัดหลิงอิ่น และLongjing Tea Village ไปเช้ากลับค่ำพอดี</p>
+      <ul class="line">
+        <li class="stop"><div class="stop__time">08:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Hotel → Hongqiao Station <span class="en zh">虹桥站</span></div><div class="stop__note">Metro สาย 1 → People's Sq → สาย 2 ถึง Hongqiao Railway Station (~50 นาที)</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.320300,31.194300&name=Shanghai Hongqiao Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">09:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">High-speed train → Hangzhou</div><div class="stop__note">Hongqiao → Hangzhou East <span class="zh">杭州东</span> ~1 ชม. · ตั๋วชั้นธุรกิจ (商务座) ~¥220–280 (≈฿1,060–1,350) · พกพาสปอร์ตไปรับตั๋ว <span class="pill pill--cost">¥220–280 (≈฿1,060–1,350)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=120.212700,30.290600&name=Hangzhou East Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--star"><div class="stop__time">10:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">West Lake / Xi Lake <span class="en zh">西湖</span></div><div class="stop__note">ทะเลสาบมรดกโลก UNESCO · เดินสะพานขาด (断桥) คันดินไป๋ (白堤) ต้นหลิวริมน้ำ ล่องเรือชมเกาะกลางทะเลสาบ <span class="pill pill--free">เข้าฟรี</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=120.149700,30.244700&name=West Lake Hangzhou"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">12:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Lakeside lunch</div><div class="stop__note">ลองอาหารหางโจว: หมูตงพอ (东坡肉), กุ้งผัดใบชาหลงจิ่ง (龙井虾仁), ปลาเปรี้ยวหวานซีหู (西湖醋鱼)</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=120.150000,30.250000&name=West Lake (lakeside lunch)"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">13:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Leifeng Pagoda <span class="en zh">雷峰塔</span> (optional)</div><div class="stop__note">เจดีย์ริมทะเลสาบ ขึ้นไปชมวิวซีหูมุมสูง สวยมากตอนแดดร่ม <span class="pill pill--cost">¥40 (≈฿190)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=120.148600,30.231600&name=Leifeng Pagoda"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--star"><div class="stop__time">14:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Lingyin Temple <span class="en zh">灵隐寺</span></div><div class="stop__note">วัดพุทธสำคัญสุดของหางโจว + ผาเฟยไหลเฟิง (飞来峰) แกะสลักหินโบราณในป่าเขียว สงบมาก <span class="pill pill--cost">~¥45 (≈฿220)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=120.101000,30.241000&name=Lingyin Temple"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">16:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Longjing Tea Village <span class="en zh">龙井村</span> / Hefang Street <span class="en zh">河坊街</span></div><div class="stop__note">ชาเขียว "มังกรบ่อ" ขึ้นชื่อ จิบชาในหมู่บ้านไร่ชาเขียวขจี · หรือเดินถนนเก่าเหอฟาง ของกินของฝาก</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=120.128000,30.223000&name=Longjing Tea Village"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">18:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Train back to Shanghai</div><div class="stop__note">Hangzhou East → Hongqiao ~1 ชม. · จองตั๋วเที่ยวกลับไว้ล่วงหน้าด้วย</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=120.212700,30.290600&name=Hangzhou East Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">20:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Back in the city · Dinner</div><div class="stop__note">กินมื้อเย็นที่ร้านโปรด หรือร้านง่าย ๆ แถวหงเฉียว/People's Square</div></div></li>
+      </ul>
+    
+    </div>
+  </details>
+
+  <!-- DAY 3 -->
+  <details class="day">
+    <summary>
+      <span class="day__num">3</span>
+      <span class="day__head"><span class="day__date">ศ 26 มิ.ย.</span><span class="day__title"><i data-lucide="building-2" class="ic"></i> Pudong Skyline</span></span>
+      <span class="day__chev">›</span>
+    </summary>
+    <div class="day__body">
+      <p class="day__intro">ขึ้นตึกสูง Stroll around Lujiazui พิพิธภัณฑ์ใหม่ฝั่งผู่ตง แล้วล่องเรือชมไฟสองฝั่งแม่น้ำ</p>
+      <ul class="line">
+        <li class="stop"><div class="stop__time">09:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Depart hotel</div><div class="stop__note">ออกจาก Country Inn (585 Hengfeng Rd) · ฮับ Metro สาย 1/3/4</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.459106,31.241979&name=Country Inn Shanghai Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">12:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Lunch in Lujiazui</div><div class="stop__note">Din Tai Fung ที่ IFC Mall หรือ Element Fresh (โบลว์สุขภาพ)</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.505500,31.239000&name=Shanghai IFC Mall (Din Tai Fung)"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">13:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Stroll around Lujiazui</div><div class="stop__note">Oriental Pearl Tower, Jin Mao Tower, ตึกที่เปิดขวด (SWFC)</div></div></li>
+        <li class="stop stop--star"><div class="stop__time">15:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Shanghai Museum East <span class="en zh">上海博物馆东馆</span></div><div class="stop__note">พิพิธภัณฑ์ใหม่ฝั่งผู่ตง (เปิด 2024) · 20 แกลเลอรี · เปิด 10:00–18:00 <span class="pill pill--free">เข้าฟรี</span> <span class="open-mon"><i data-lucide="check" class="ic"></i> เปิดศุกร์</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.538745,31.219913&name=Shanghai Museum East"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--star"><div class="stop__time">~17:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Shanghai Tower <span class="en zh">上海中心大厦</span></div><div class="stop__note"><i data-lucide="cloud-sun" class="ic"></i> <b>ช่วงโกลเด้นอาวร์ ก่อนพระอาทิตย์ตก</b> — วิวกลางวันต่อพระอาทิตย์ตก + ไฟเมืองเริ่มติด · ขึ้นเฉพาะวันฟ้าใส เช็คอากาศก่อน (ฟ้าปิดข้ามไปก่อน) · สูง 632 ม. อันดับ 3 ของโลก · ชั้นชมวิว 546 ม. · จองตอนจะไป (เช็คฟ้าก่อน) <span class="pill pill--cost">¥180 (≈฿860)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.504886,31.233710&name=Shanghai Tower"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">18:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Huangpu River cruise</div><div class="stop__note">ล่อง 1 ชม. ชมไฟสองฝั่งสวยสุด · จองผ่าน Alipay mini-program หรือคอนเซียจ์โรงแรม <span class="pill pill--cost">¥120–150 (≈฿580–720)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.498500,31.225500&name=Huangpu River Cruise (Shiliupu Pier)"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+      </ul>
+
+    
+    </div>
+  </details>
+
+  <!-- DAY 4 -->
+  <details class="day">
+    <summary>
+      <span class="day__num">4</span>
+      <span class="day__head"><span class="day__date">ส 27 มิ.ย.</span><span class="day__title"><i data-lucide="coffee" class="ic"></i> Café Hopping · French Concession</span></span>
+      <span class="day__chev">›</span>
+    </summary>
+    <div class="day__body">
+      <p class="day__intro">วันคาเฟ่ฮอป เดินถนนต้นไม้สวย ๆ ที่โรแมนติกที่สุดของเซี้ยงไฮ้ ปิดท้ายมื้อค่ำฝรั่งเศสแสงเทียน</p>
+      <ul class="line">
+        <li class="stop"><div class="stop__time">09:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Depart hotel</div><div class="stop__note">ออกจาก Country Inn (585 Hengfeng Rd) · ฮับ Metro สาย 1/3/4</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.459106,31.241979&name=Country Inn Shanghai Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">09:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Breakfast: Baker &amp; Spice (Anfu Rd)</div><div class="stop__note">เพสตรี้+กาแฟดี บรรยากาศชิลล์ <span class="pill pill--cost">¥60–120 (≈฿290–580)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.440000,31.213000&name=Baker and Spice"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">10:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Wukang Mansion <span class="en zh">武康大楼</span></div><div class="stop__note">ตึกอาร์ตเดโคทรงหัวเรือไอคอนิก (1924) — จุดถ่ายรูปสุดฮิตของเซี่ยงไฮ้ มุมหัวถนน Wukang × Huaihai · เริ่มต้นถนนต้นไม้ French Concession</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.434500,31.210500&name=Wukang Mansion"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">10:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Walk the French Concession</div><div class="stop__note">Wukang Rd → Fuxing Rd → Huaihai Rd · ถนนต้นไม้ วิลล่าอาร์ตเดโค ย่านโรแมนติกสุด</div></div></li>
+        <li class="stop stop--eat stop--dao"><div class="stop__time">11:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Café #1: Metal Hands <span class="en zh">铁手咖啡</span></div><div class="stop__note">กาแฟ specialty ชื่อดังบนถนน Yongkang <span class="pill pill--cost">¥30–60 (≈฿140–290)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.460000,31.213000&name=Metal Hands"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">12:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Lunch: Alimentari &amp; Degusteria</div><div class="stop__note">เดลี่อิตาเลียน ชาร์คูเตอรี ชีส ไวน์ · หรือ EGG cafe (บรันช์) <span class="pill pill--cost">¥100–200 (≈฿480–960)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.465000,31.215000&name=Alimentari and Degusteria"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">14:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Café hop: Cafe Del Volcan → Captain George</div><div class="stop__note">ไล่ดื่มกาแฟทั่วย่าน Concession (เดิน ~20 นาทีระหว่างจุด)</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.438000,31.211000&name=Cafe Del Volcan"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--dao"><div class="stop__time">15:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Propaganda Poster Museum</div><div class="stop__note">Hidden gem · คอลเลกชันโปสเตอร์โฆษณาชวนเชื่อยุคศตวรรษที่ 20 แปลกและน่าสนใจ <span class="pill pill--cost">¥30–50 (≈฿140–240)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.460000,31.210000&name=Propaganda Poster Museum"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat stop--dao"><div class="stop__time">16:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name"><i data-lucide="cup-soda" class="ic"></i> Tea: CHAGEE / Heytea</div><div class="stop__note">แวะ Heytea/CHAGEE ที่ห้าง iapm (Huaihai Middle Rd) จิบเย็น ๆ · หรือหาสาขาใกล้ ๆ ก็ได้ มีเยอะ</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.458500,31.214800&name=iapm Mall Huaihai (Heytea / CHAGEE)"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        
+        <li class="stop"><div class="stop__time">21:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Evening stroll</div><div class="stop__note">ถนนต้นไม้ French Concession ตอนกลางคืนสวยมาก <i data-lucide="sparkles" class="ic"></i></div></div></li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- DAY 5 -->
+  <details class="day">
+    <summary>
+      <span class="day__num">5</span>
+      <span class="day__head"><span class="day__date">อา 28 มิ.ย.</span><span class="day__title"><i data-lucide="castle" class="ic"></i> Old Shanghai</span></span>
+      <span class="day__chev">›</span>
+    </summary>
+    <div class="day__body">
+      <p class="day__intro">สวนโบราณ วัด ดิมซัม แล้วเข้าพิพิธภัณฑ์ระดับโลก ปิดท้ายช้อปปิ้งหนานจิงลู่ + หม่าล่าฮอตพอต</p>
+      <ul class="line">
+        <li class="stop"><div class="stop__time">08:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Depart hotel</div><div class="stop__note">ออกจาก Country Inn (585 Hengfeng Rd) · ฮับ Metro สาย 1/3/4</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.459106,31.241979&name=Country Inn Shanghai Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--star"><div class="stop__time">09:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Yu Garden <span class="en zh">豫园</span></div><div class="stop__note">สวนคลาสสิกสมัยราชวงศ์หมิง บ่อน้ำ ภูเขาหิน ศาลา ไปเช้าหน่อยเลี่ยงคน <span class="pill pill--cost">¥40 (≈฿190)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.491392,31.227393&name=Yu Garden"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--dao"><div class="stop__time">10:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">City God Temple <span class="en zh">城隍庙</span></div><div class="stop__note">ติดสวนอวี้ มีตลาดบาซาร์ กินเสฉวนเป่าตามแผง · มูขอพรเทพผู้พิทักษ์เมือง (城隍) เรื่องดวง/ปกป้อง (ทำตาม TikTok) <span class="pill pill--cost">¥10 (≈฿50)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.490000,31.227000&name=City God Temple"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">11:15</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Snack: Da Hu Chun <span class="en zh">大壶春</span></div><div class="stop__note">เสฉวนเป่าเจ้าตำนานสไตล์เซี่ยงไฮ้แท้ — แป้งนุ่ม ไส้หมูแน่น (ไม่ฉ่ำซุปแบบ Yang's) แวะชิมเบา ๆ ระหว่างย่านเมืองเก่า <span class="pill pill--cost">¥15–30 (≈฿70–145)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.492000,31.227500&name=Da Hu Chun"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--dao stop--eat"><div class="stop__time">12:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Lunch: Taotaoju <span class="en zh">陶陶居</span></div><div class="stop__note">ดิมซัมกวางตุ้งชื่อดังจากกว่างโจว · หรือ Lai Lai Xiao Long <span class="zh">来来小笼</span> สำหรับเสี่ยวหลงเปา <span class="pill pill--cost">¥150–300 (≈฿720–1,450)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.480000,31.235000&name=Taotaoju"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--star"><div class="stop__time">14:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Shanghai Museum <span class="en zh">上海博物馆</span></div><div class="stop__note">People's Square · ศิลปะจีนโบราณระดับโลก สำริด เซรามิก คัลลิกราฟี · เปิด 9:00–17:00 <span class="pill pill--free">เข้าฟรี</span> <span class="open-mon"><i data-lucide="check" class="ic"></i> เปิดอาทิตย์</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.475480,31.228231&name=Shanghai Museum"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">18:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Nanjing Road <span class="en zh">南京路</span></div><div class="stop__note">ถนนช้อปปิ้งอันดับ 1 ของจีน · แวะ Disney China Flagship Store เดินเล่นได้</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.482536,31.236715&name=Nanjing Road"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--dao"><div class="stop__time">19:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">POP MART Global Flagship <span class="en zh">泡泡玛特</span></div><div class="stop__note">ฟลักชิปสโตร์ POP MART ใหญ่สุด บนถนนคนเดินหนานจิงตะวันออก — Labubu, Molly, art toys, กล่องสุ่มครบ ของสะสมแบรนด์จีนดัง</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.481000,31.239000&name=POP MART Global Flagship Store"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat stop--star"><div class="stop__time">20:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Dinner: Gaolaojiu Hot Pot <span class="en zh">重庆高老九火锅</span></div><div class="stop__note">หม่าล่าฮอตพอตฉงชิ่งแท้ บนหนานจิงตะวันออก · หรือ Mercato (อิตาเลียน) <span class="pill pill--cost">¥120–200 (≈฿580–960)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.482468,31.235719&name=Gaolaojiu Hot Pot"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+      </ul>
+
+    
+    </div>
+  </details>
+
+  <!-- DAY 6 -->
+  <details class="day">
+    <summary>
+      <span class="day__num">6</span>
+      <span class="day__head"><span class="day__date">จ 29 มิ.ย.</span><span class="day__title"><i data-lucide="palette" class="ic"></i> Art + Temples</span></span>
+      <span class="day__chev">›</span>
+    </summary>
+    <div class="day__body">
+      <p class="day__intro">วันจันทร์พิพิธภัณฑ์ส่วนใหญ่ปิด แต่ Power Station of Art เปิด! ต่อด้วยย่านศิลปินและวัดกลางเมือง</p>
+      <ul class="line">
+        <li class="stop"><div class="stop__time">09:15</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Depart hotel</div><div class="stop__note">ออกจาก Country Inn (585 Hengfeng Rd) · ฮับ Metro สาย 1/3/4</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.459106,31.241979&name=Country Inn Shanghai Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--star"><div class="stop__time">10:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Power Station of Art <span class="en zh">当代艺术博物馆</span></div><div class="stop__note">ศิลปะร่วมสมัยในโรงไฟฟ้าเก่า · เปิด 11:00–19:00 <span class="pill pill--free">เข้าฟรี</span> <span class="open-mon"><i data-lucide="check" class="ic"></i> เปิดจันทร์</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.480000,31.210000&name=Power Station of Art"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">12:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Lunch: Alimentari &amp; Degusteria</div><div class="stop__note">เดลี่อิตาเลียนใกล้ ๆ หรือร้านก๋วยเตี๋ยวท้องถิ่นแถว PSA</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.465000,31.215000&name=Alimentari and Degusteria"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--dao"><div class="stop__time">14:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Tianzifang <span class="en zh">田子坊</span></div><div class="stop__note">ย่านตรอกซอกซอยอาร์ต ร้านบูทีค แกลเลอรี คาเฟ่เล็ก ๆ เดินสนุก</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.468662,31.208197&name=Tianzifang"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--dao stop--star"><div class="stop__time">16:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Jing'an Temple <span class="en zh">静安寺</span></div><div class="stop__note">วัดพุทธหลังคาทอง พระพุทธรูปใหญ่ ตัดกับตึกระฟ้ารอบข้าง Must-see · มูขอพร (ทำตาม TikTok) <span class="pill pill--cost">¥50 (≈฿240)</span> · ใกล้ ๆ มี Jade Buddha Temple <span class="zh">玉佛寺</span> (¥20 (≈฿95))</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.447000,31.224000&name=Jingan Temple"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat stop--star"><div class="stop__time">19:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Dinner: Long Time Ago <span class="gcard__star"><i data-lucide="star" class="ic ic-star"></i></span></div><div class="stop__note">ร้านที่ Moodang แนะนำ · หรือ Fu He Hui <span class="zh">福和慧</span> มังสวิรัติมิชลินสตาร์</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.460000,31.220000&name=Long Time Ago"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- DAY 7 -->
+  <details class="day">
+    <summary>
+      <span class="day__num">7</span>
+      <span class="day__head"><span class="day__date">อ 30 มิ.ย.</span><span class="day__title"><i data-lucide="bed" class="ic"></i> Free Day + Acrobatics Show</span></span>
+      <span class="day__chev">›</span>
+    </summary>
+    <div class="day__body">
+      <p class="day__intro">Sleep in เที่ยวตามใจ ช้อปของฝาก ปิดท้ายด้วยโชว์กายกรรมระดับโลกที่อยู่ใกล้โรงแรมมาก</p>
+      <ul class="line">
+        <li class="stop"><div class="stop__time">~10:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Sleep in</div><div class="stop__note">ไม่ต้องรีบ — สมควรได้พักแล้ว · ที่โรงแรม</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.459106,31.241979&name=Country Inn Shanghai Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">12:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Brunch: Commune Social</div><div class="stop__note">ทาปาสบรันช์ในคอร์ตยาร์ด (French Concession) <span class="pill pill--cost">¥150–300 (≈฿720–1,450)</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.440000,31.210000&name=Commune Social"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--dao"><div class="stop__time">14:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">1000 Trees <span class="en zh">天安千树</span></div><div class="stop__note">ห้างดีไซน์ไอคอนิกริมคลองซูโจว ออกแบบโดย Heatherwick — ขั้นบันไดภูเขาเขียว เสาปลูกต้นไม้กว่า 1,000 ต้น คาเฟ่ ร้านรวง ถ่ายรูปสวยมาก · ติดย่านศิลป์ M50 <span class="pill pill--free">เข้าฟรี</span></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.436000,31.253000&name=1000 Trees Tianan"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">16:30</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Shop / explore freely</div><div class="stop__note">กลับไปย่านโปรด ซื้อของฝาก หรือไป Longhua Temple <span class="zh">龙华寺</span> วัดเก่าแก่สุดของเซี้ยงไฮ้ (¥10 (≈฿50))</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.452000,31.175000&name=Longhua Temple"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        
+        <li class="stop"><div class="stop__time">18:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Shopping: เสื้อผ้า + ของฝาก</div><div class="stop__note">ช้อปเสื้อผ้าราคาถูกที่ตลาด Qipu Rd <span class="zh">七浦路</span> (ใกล้โรงแรม ~10 นาที) · เก็บของฝาก ชา ขนม ของที่ระลึก ก่อนกลับ</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.483000,31.251000&name=Qipu Road Clothing Market"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--eat"><div class="stop__time">21:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Farewell dinner</div><div class="stop__note">กลับไปกินร้านโปรดของทริปอีกรอบ ปิดทริปแบบอบอุ่น</div></div></li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- DAY 8 -->
+  <details class="day">
+    <summary>
+      <span class="day__num">8</span>
+      <span class="day__head"><span class="day__date">พุธ 1 ก.ค.</span><span class="day__title"><i data-lucide="plane-takeoff" class="ic"></i> Departure</span></span>
+      <span class="day__chev">›</span>
+    </summary>
+    <div class="day__body">
+      <p class="day__intro">เก็บของ ฝากกระเป๋าไว้ที่โรงแรม เดินเล่นเก็บตกครั้งสุดท้าย แล้วมุ่งหน้าสนามบิน</p>
+      <ul class="line">
+        <li class="stop"><div class="stop__time">~10:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Check out</div><div class="stop__note">ฝากกระเป๋าที่รีเซปชั่นถ้าไฟลท์ดึก</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.459106,31.241979&name=Country Inn Shanghai Railway Station"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop"><div class="stop__time">11:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">One last stroll</div><div class="stop__note">กาแฟแก้วสุดท้าย หรือแวะตลาดใกล้ ๆ ซื้อของฝากนาทีสุดท้าย</div></div></li>
+        <li class="stop stop--eat"><div class="stop__time">13:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Lunch</div><div class="stop__note">มื้อสุดท้ายในเซี้ยงไฮ้ — เมนูที่อยากกินซ้ำที่สุด</div></div></li>
+        <li class="stop"><div class="stop__time">17:00</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name">Head to PVG</div><div class="stop__note">Metro ~70 นาที / DiDi ~50 นาที / Airport Bus 5 ตรง · เผื่อ ~4 ชม. ก่อนบิน</div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.808118,31.151526&name=PVG Airport"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+        <li class="stop stop--star"><div class="stop__time">21:15</div><span class="stop__dot"></span><div class="stop__body"><div class="stop__name"><i data-lucide="plane" class="ic"></i> Flight departs</div><div class="stop__note">บินออกจากเซี้ยงไฮ้ผู่ตง · ลาก่อนเซี้ยงไฮ้ <i data-lucide="hand" class="ic"></i></div><a class="maplink" target="_blank" href="https://uri.amap.com/marker?position=121.808118,31.151526&name=PVG Airport"><i data-lucide="map-pin" class="ic"></i> ดูแผนที่</a></div></li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- TRIP MAP -->
+<section id="map" style="background:var(--porcelain-soft);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);">
+  <div class="wrap">
+    <p class="eyebrow">Trip Map</p>
+    <h2 class="h2">Route Map</h2>
+    <p class="lede">เลือกวัน แล้วดูหมุดแต่ละจุดบนแผนที่ · กดที่รายการเพื่อโฟกัสหมุด · กด Open route เพื่อเปิดเส้นทางทั้งวันใน Google Maps</p>
+    <div class="maptabs" id="maptabs"></div>
+    <div class="maplayout">
+      <div id="leafmap"></div>
+      <div class="mappanel" id="mappanel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOD -->
+<section id="food" style="background:var(--porcelain-soft);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);">
+  <div class="wrap">
+    <p class="eyebrow">Eat &amp; Drink</p>
+    <h2 class="h2">Food &amp; Cafés</h2>
+    <p class="lede"><i data-lucide="star" class="ic ic-star"></i> = Moodang's pick · ราคาต่อคนโดยประมาณ</p>
+    <div class="grid">
+      <div class="gcard"><div class="gcard__type"><i data-lucide="flag" class="ic"></i> Yunnan Fusion</div><div class="gcard__name">Lost Heaven <span class="zh">花马天堂</span></div><div class="gcard__desc">ตกแต่งสวย โรแมนติก หนึ่งในร้านที่สวยที่สุดของเซี้ยงไฮ้</div><div class="gcard__foot"><span>¥200–350 (≈฿960–1,700)</span><span>ใกล้เดอะบันด์</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="soup" class="ic"></i> Shengjianbao</div><div class="gcard__name">Yang's Fried Dumplings <span class="zh">小杨生煎</span></div><div class="gcard__desc">เป่าก้นกรอบใส้หมูซุป สตรีทฟู้ดต้องลองของเซี้ยงไฮ้</div><div class="gcard__foot"><span>¥20–40 (≈฿95–190)</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="flag" class="ic"></i> Chongqing Hot Pot</div><div class="gcard__name gcard__star"><i data-lucide="star" class="ic ic-star"></i> Gaolaojiu <span class="zh">高老九火锅</span></div><div class="gcard__desc">หม่าล่าฮอตพอตฉงชิ่งแท้ เผ็ดจัดจ้าน บนหนานจิงตะวันออก</div><div class="gcard__foot"><span>¥120–200 (≈฿580–960)</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="flag" class="ic"></i> Cantonese / Dim Sum</div><div class="gcard__name gcard__star"><i data-lucide="star" class="ic ic-star"></i> Taotaoju <span class="zh">陶陶居</span></div><div class="gcard__desc">เชนกวางตุ้งจากกว่างโจว ดิมซัม หมูย่าง ของกวางตุ้งดั้งเดิม</div><div class="gcard__foot"><span>¥150–300 (≈฿720–1,450)</span><span>ใกล้หนานจิงลู่</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="soup" class="ic"></i> Soup Dumplings</div><div class="gcard__name gcard__star"><i data-lucide="star" class="ic ic-star"></i> Lai Lai Xiao Long <span class="zh">来来小笼</span></div><div class="gcard__desc">เสี่ยวหลงเปาคลาสสิกของเซี้ยงไฮ้ ของโปรดคนท้องถิ่น คุ้มและอร่อย</div><div class="gcard__foot"><span>¥30–60 (≈฿140–290)</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="flag" class="ic"></i> Xiaolongbao</div><div class="gcard__name">Din Tai Fung <span class="zh">鼎泰丰</span></div><div class="gcard__desc">มาตรฐานทองของเสี่ยวหลงเปา มีหลายสาขาทั่วเมือง</div><div class="gcard__foot"><span>¥100–200 (≈฿480–960)</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="globe" class="ic"></i> Fine Dining</div><div class="gcard__name">M on the Bund</div><div class="gcard__desc">สถาบันของเซี้ยงไฮ้ ระเบียงวิวเดอะบันด์ที่ดีที่สุด จองล่วงหน้า</div><div class="gcard__foot"><span>¥500–800 (≈฿2,400–3,850)</span><span>20 Guangdong Rd</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="flag" class="ic"></i> Southern French</div><div class="gcard__name">Vacances</div><div class="gcard__desc">อบอุ่น แสงเทียน โรแมนติก เหมาะกับมื้อค่ำของคู่รัก</div><div class="gcard__foot"><span>¥300–500 (≈฿1,450–2,400)</span><span>Changning</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="salad" class="ic"></i> Michelin Vegetarian</div><div class="gcard__name">Fu He Hui <span class="zh">福和慧</span></div><div class="gcard__desc">คอร์สเทสติ้งมังสวิรัติ บรรยากาศเซน จองล่วงหน้านาน ๆ</div><div class="gcard__foot"><span>¥600–1,000 (≈฿2,900–4,800)</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="flag" class="ic"></i> Italian Deli</div><div class="gcard__name gcard__star"><i data-lucide="star" class="ic ic-star"></i> Alimentari &amp; Degusteria</div><div class="gcard__desc">เดลี่อิตาเลียน ชาร์คูเตอรี ชีส ไวน์ ดีสำหรับมื้อสบาย ๆ</div><div class="gcard__foot"><span>¥100–200 (≈฿480–960)</span><span>French Concession</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="croissant" class="ic"></i> Bakery / Cafe</div><div class="gcard__name">Baker &amp; Spice</div><div class="gcard__desc">เพสตรี้+กาแฟดี บรรยากาศชิลล์ บนถนน Anfu</div><div class="gcard__foot"><span>¥60–120 (≈฿290–580)</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="coffee" class="ic"></i> Specialty Coffee</div><div class="gcard__name">Metal Hands <span class="zh">铁手咖啡</span></div><div class="gcard__desc">ดริป+เอสเพรสโซชื่อดัง คอกาแฟต้องลอง</div><div class="gcard__foot"><span>¥30–60 (≈฿140–290)</span><span>Yongkang Rd</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="coffee" class="ic"></i> Specialty Coffee</div><div class="gcard__name gcard__star"><i data-lucide="star" class="ic ic-star"></i> Cafe Del Volcan</div><div class="gcard__desc">ร้านเล็กแต่ตำนาน กาแฟดีที่สุดในเซี้ยงไฮ้</div><div class="gcard__foot"><span>¥30–50 (≈฿140–240)</span><span>Wukang Rd</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="flag" class="ic"></i> Tapas / Brunch</div><div class="gcard__name">Commune Social</div><div class="gcard__desc">ทาปาสในคอร์ตยาร์ด ย่าน French Concession บรันช์สบาย ๆ</div><div class="gcard__foot"><span>¥150–300 (≈฿720–1,450)</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="cup-soda" class="ic"></i> Premium Tea</div><div class="gcard__name gcard__star"><i data-lucide="star" class="ic ic-star"></i> CHAGEE <span class="zh">霸王茶姬</span> / Heytea <span class="zh">喜茶</span></div><div class="gcard__desc">ชานมจีนเทรนด์ดี ชาผลไม้ ชาชีส มีหลายสาขาทั่วเมือง</div><div class="gcard__foot"><span>¥20–40 (≈฿95–190)</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MUSEUMS -->
+<section id="museums" class="wrap">
+  <p class="eyebrow">Museums</p>
+  <h2 class="h2">Museums</h2>
+  <p class="lede">เช็ควันปิดให้ดี — โปรแกรมจัดวันไว้ให้ลงตัวกับวันเปิดแล้ว</p>
+  <div class="grid">
+    <div class="gcard"><div class="gcard__type"><i data-lucide="landmark" class="ic"></i> ศิลปะจีนโบราณ</div><div class="gcard__name">Shanghai Museum <span class="zh">上海博物馆</span></div><div class="gcard__desc">สำริด เซรามิก คัลลิกราฟี หยก หนึ่งในพิพิธภัณฑ์ที่ดีที่สุดของจีน · People's Square · 9:00–17:00</div><div class="gcard__foot"><span class="pill pill--free">เข้าฟรี</span><span class="closed">ปิดจันทร์</span></div></div>
+    <div class="gcard"><div class="gcard__type"><i data-lucide="landmark" class="ic"></i> ใหม่ 2024</div><div class="gcard__name">Shanghai Museum East <span class="zh">东馆</span></div><div class="gcard__desc">20 แกลเลอรี ศิลปะ ประติมากรรมจีน นิทรรศการล้ำสมัย · Pudong · 10:00–18:00</div><div class="gcard__foot"><span class="pill pill--free">เข้าฟรี</span><span class="closed">ปิดอังคาร</span></div></div>
+    <div class="gcard"><div class="gcard__type"><i data-lucide="landmark" class="ic"></i> ศิลปะร่วมสมัย</div><div class="gcard__name">Power Station of Art <span class="zh">当代艺术博物馆</span></div><div class="gcard__desc">ศิลปะร่วมสมัยในโรงไฟฟ้าเก่า แห่งแรกของรัฐบาลจีน · Huangpu · 11:00–19:00</div><div class="gcard__foot"><span class="pill pill--free">เข้าฟรี</span><span class="open-mon"><i data-lucide="check" class="ic"></i> เปิดจันทร์</span></div></div>
+    <div class="gcard"><div class="gcard__type"><i data-lucide="bone" class="ic"></i> ธรรมชาติวิทยา</div><div class="gcard__name gcard__star"><i data-lucide="star" class="ic ic-star"></i> Natural History Museum <span class="zh">自然博物馆</span></div><div class="gcard__desc">ไดโนเสาร์ วิวัฒนาการ ระบบนิเวศ เหมาะกับคู่รัก ใกล้ Jing'an · 9:00–17:00</div><div class="gcard__foot"><span class="pill pill--cost">¥30 (≈฿140)</span><span class="closed">ปิดจันทร์</span></div></div>
+    <div class="gcard"><div class="gcard__type"><i data-lucide="image" class="ic"></i> Hidden Gem</div><div class="gcard__name">Propaganda Poster Museum</div><div class="gcard__desc">คอลเลกชันโปสเตอร์โฆษณาชวนเชื่อจีนยุคศตวรรษที่ 20 แปลกและน่าสนใจ · French Concession</div><div class="gcard__foot"><span class="pill pill--cost">¥30–50 (≈฿140–240)</span></div></div>
+  </div>
+</section>
+
+<!-- TEMPLES -->
+<section id="temples" style="background:var(--porcelain-soft);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);">
+  <div class="wrap">
+    <p class="eyebrow">Temples</p>
+    <h2 class="h2">Temples</h2>
+    <p class="lede">หลบความวุ่นวายของเมือง — ประวัติศาสตร์ สถาปัตยกรรม และความสงบ</p>
+    <div class="grid">
+      <div class="gcard"><div class="gcard__type"><i data-lucide="landmark" class="ic"></i> Must-see</div><div class="gcard__name">Jing'an Temple <span class="zh">静安寺</span></div><div class="gcard__desc">วัดดังสุดของเซี้ยงไฮ้ หลังคาทอง พระพุทธรูปใหญ่ ตัดกับตึกระฟ้าแบบเหนือจริง · 7:30–17:00 · สาย 2/7</div><div class="gcard__foot"><span class="pill pill--cost">¥50 (≈฿240)</span><span>Jing'an</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="landmark" class="ic"></i> Jade Buddha</div><div class="gcard__name">Jade Buddha Temple <span class="zh">玉佛寺</span></div><div class="gcard__desc">มีพระหยกหายาก 2 องค์จากพม่า วัดที่ยังใช้งานจริง เห็นพระสวดมนต์ · 8:00–16:30 · สาย 13</div><div class="gcard__foot"><span class="pill pill--cost">¥20 (≈฿95)</span><span>Putuo</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="landmark" class="ic"></i> เก่าแก่สุด</div><div class="gcard__name">Longhua Temple <span class="zh">龙华寺</span></div><div class="gcard__desc">วัดเก่าแก่สุดของเซี้ยงไฮ้ (242 AD) เจดีย์หลงหัว 7 ชั้น ร้านอาหารมังสวิรัติในวัด · 7:00–16:30 · สาย 11/12</div><div class="gcard__foot"><span class="pill pill--cost">¥10 (≈฿50)</span><span>Xuhui</span></div></div>
+      <div class="gcard"><div class="gcard__type"><i data-lucide="landmark" class="ic"></i> Taoist</div><div class="gcard__name">City God Temple <span class="zh">城隍庙</span></div><div class="gcard__desc">วัดเต๋าติดสวนอวี้ บูชาเทพผู้พิทักษ์เมือง รายล้อมด้วยตลาดบาซาร์คึกคัก · 8:30–16:30</div><div class="gcard__foot"><span class="pill pill--cost">¥10 (≈฿50)</span><span>ติด Yu Garden</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- BUDGET -->
+<section id="budget" class="wrap">
+  <p class="eyebrow">Budget</p>
+  <h2 class="h2">Budget (per person)</h2>
+  <p class="lede">ประมาณการคร่าว ๆ สำหรับทริป 8 วัน · คิดที่เรตประมาณ 1 หยวน ≈ 4.8 บาท (มิ.ย. 2026 — เช็กเรตจริงก่อนเดินทางอีกที)</p>
+  <div class="wrap-scroll">
+  <table class="budget">
+    <thead><tr><th>หมวด</th><th>ประมาณการ</th></tr></thead>
+    <tbody>
+      <tr><td><i data-lucide="ticket" class="ic"></i> ค่าเข้าสถานที่<span class="nt">Shanghai Tower ¥180, (≈฿860) Yu Garden ¥40, (≈฿190) Jing'an ¥50, (≈฿240) หางโจว (Lingyin+Leifeng) ~¥85 (≈฿410)</span></td><td>¥350–480 (≈฿1,700–2,300)</td></tr>
+      <tr><td><i data-lucide="utensils" class="ic"></i> อาหาร & เครื่องดื่ม<span class="nt">~¥200–300 (≈฿960–1,450)/วัน สำหรับ 2 มื้อ + ของว่าง + กาแฟ</span></td><td>¥1,500–2,000 (≈฿7,200–9,600)</td></tr>
+      <tr><td><i data-lucide="train-front" class="ic"></i> เดินทาง<span class="nt">Metro ~¥5–10 (≈฿25–50)/วัน + รถรับส่งสนามบิน + รถไฟหางโจวไป-กลับ ~¥150–180 (≈฿720–860)</span></td><td>¥300–430 (≈฿1,450–2,050)</td></tr>
+      <tr><td><i data-lucide="drama" class="ic"></i> โชว์ / ล่องเรือ<span class="nt">ERA Acrobatic Show หรือล่องเรือหวงผู่</span></td><td>¥200–400 (≈฿960–1,900)</td></tr>
+      <tr class="total"><td>รวม</td><td>¥2,750–3,750 (≈฿13,200–18,000)</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<footer>
+  <div class="fz zh">上海 2026</div>
+  <div class="fs"><i data-lucide="plane" class="ic"></i> Shanghai 2026 — ทริปคู่รัก 8 วัน · ขอให้เที่ยวสนุกนะครับ <i data-lucide="flag" class="ic"></i></div>
+</footer>
+
+<script>
+  // Plum-rain ambience in hero (respects reduced motion)
+  (function(){
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var rain = document.getElementById('rain');
+    if (!rain) return;
+    var n = 26;
+    for (var i=0;i<n;i++){
+      var s = document.createElement('span');
+      s.style.left = (Math.random()*100) + '%';
+      s.style.animationDuration = (1.6 + Math.random()*2.2) + 's';
+      s.style.animationDelay = (-Math.random()*4) + 's';
+      s.style.opacity = (0.25 + Math.random()*0.4).toFixed(2);
+      rain.appendChild(s);
+    }
+  })();
+
+  // Accordion: open the clicked day, scroll into comfortable view
+  document.querySelectorAll('details.day > summary').forEach(function(sm){
+    sm.addEventListener('click', function(){
+      var d = sm.parentElement;
+      // allow default toggle; after opening, nudge into view on small screens
+      setTimeout(function(){
+        if (d.open && window.innerWidth < 760){
+          d.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      }, 60);
+    });
+  });
+</script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>lucide.createIcons();</script>
+<script>
+(function(){
+  if(typeof L==='undefined') return;
+  // GCJ-02 (Amap) -> WGS-84 offset correction for China
+  function toWgs(lat,lng){
+    var a=6378245.0, ee=0.00669342162296594323;
+    function tl(x,y){var r=-100+2*x+3*y+0.2*y*y+0.1*x*y+0.2*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3;r+=(20*Math.sin(y*Math.PI)+40*Math.sin(y/3*Math.PI))*2/3;r+=(160*Math.sin(y/12*Math.PI)+320*Math.sin(y*Math.PI/30))*2/3;return r;}
+    function tg(x,y){var r=300+x+2*y+0.1*x*x+0.1*x*y+0.1*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3;r+=(20*Math.sin(x*Math.PI)+40*Math.sin(x/3*Math.PI))*2/3;r+=(150*Math.sin(x/12*Math.PI)+300*Math.sin(x/30*Math.PI))*2/3;return r;}
+    var dLat=tl(lng-105,lat-35), dLng=tg(lng-105,lat-35);
+    var rl=lat/180*Math.PI, m=Math.sin(rl); m=1-ee*m*m; var sm=Math.sqrt(m);
+    dLat=(dLat*180)/((a*(1-ee))/(m*sm)*Math.PI);
+    dLng=(dLng*180)/(a/sm*Math.cos(rl)*Math.PI);
+    return [lat-dLat, lng-dLng];
+  }
+  var days=[].slice.call(document.querySelectorAll('#itinerary .day'));
+  var data=days.map(function(d,di){
+    var title=d.querySelector('.day__title').textContent.trim();
+    var introEl=d.querySelector('.day__intro');
+    var stops=[].slice.call(d.querySelectorAll('.stop')).map(function(st){
+      var t=st.querySelector('.stop__time'), n=st.querySelector('.stop__name'), no=st.querySelector('.stop__note'), a=st.querySelector('a.maplink');
+      var lat=null,lng=null;
+      if(a){var mm=a.getAttribute('href').match(/position=([0-9.]+),([0-9.]+)/); if(mm){var w=toWgs(parseFloat(mm[2]),parseFloat(mm[1])); lat=w[0]; lng=w[1];}}
+      var c=st.classList;
+      var color=c.contains('stop--dao')?'#8a5fb0':c.contains('stop--star')?'#8f9c56':c.contains('stop--eat')?'#dd7048':'#3a6b4e';
+      return {time:(t?t.textContent.trim():''),name:(n?n.textContent.trim():''),note:(no?no.textContent.trim():''),lat:lat,lng:lng,color:color};
+    });
+    return {idx:di+1,title:title,intro:(introEl?introEl.textContent.trim():''),stops:stops};
+  });
+  var map=L.map('leafmap',{scrollWheelZoom:false}).setView([31.23,121.47],12);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);
+  var layer=L.layerGroup().addTo(map);
+  var tabs=document.getElementById('maptabs'), panel=document.getElementById('mappanel'), markers=[];
+  function esc(x){return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+  function render(i){
+    layer.clearLayers(); markers=[];
+    var d=data[i], pts=[];
+    d.stops.forEach(function(s,si){
+      if(s.lat==null) return;
+      var icon=L.divIcon({className:'',html:'<div class="mk" style="background:'+s.color+'">'+(si+1)+'</div>',iconSize:[26,26],iconAnchor:[13,13]});
+      var mk=L.marker([s.lat,s.lng],{icon:icon}).addTo(layer).bindPopup('<b>'+esc(s.time)+'</b><br>'+esc(s.name));
+      markers[si]=mk; pts.push([s.lat,s.lng]);
+    });
+    if(pts.length>1) L.polyline(pts,{color:'#c6d94a',weight:3,opacity:.75,dashArray:'1,9',lineCap:'round'}).addTo(layer);
+    if(pts.length) map.fitBounds(pts,{padding:[45,45],maxZoom:15});
+    [].forEach.call(tabs.children,function(b,bi){b.classList.toggle('active',bi===i);});
+    var g='https://www.google.com/maps/dir/'+pts.map(function(p){return p[0].toFixed(6)+','+p[1].toFixed(6);}).join('/');
+    var h='<div class="pday">Day '+d.idx+'</div><h3>'+esc(d.title)+'</h3>';
+    if(d.intro) h+='<div class="pintro">'+esc(d.intro)+'</div>';
+    if(pts.length>1) h+='<a class="mproute" href="'+g+'" target="_blank" rel="noopener"><i data-lucide="navigation" class="ic"></i> Open route</a>';
+    d.stops.forEach(function(s,si){
+      h+='<div class="mstop" data-i="'+si+'"><div class="mstop__n'+(s.lat==null?' nogeo':'')+'" style="background:'+s.color+'">'+(si+1)+'</div><div><div class="mstop__t">'+esc(s.time)+'</div><div class="mstop__name">'+esc(s.name)+'</div><div class="mstop__note">'+esc(s.note)+'</div></div></div>';
+    });
+    panel.innerHTML=h;
+    if(window.lucide) lucide.createIcons();
+    [].forEach.call(panel.querySelectorAll('.mstop'),function(el){
+      el.addEventListener('click',function(){var mk=markers[+el.getAttribute('data-i')]; if(mk){map.setView(mk.getLatLng(),16); mk.openPopup();}});
+    });
+    setTimeout(function(){map.invalidateSize();},150);
+  }
+  data.forEach(function(d,i){var b=document.createElement('button');b.className='maptab';b.textContent='Day '+d.idx;b.addEventListener('click',function(){render(i);});tabs.appendChild(b);});
+  render(0);
+})();
+</script>
+</body>
+</html>
